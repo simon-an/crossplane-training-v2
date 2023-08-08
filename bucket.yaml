@@ -1,0 +1,12 @@
+---
+apiVersion: s3.aws.crossplane.io/v1beta1
+kind: Bucket
+metadata:
+  name: 2023-08-08-final-bucket # give it a unique name
+spec:
+  deletionPolicy: Delete
+  forProvider:
+    objectOwnership: BucketOwnerEnforced
+    locationConstraint: eu-central-1
+  providerConfigRef:
+    name: default

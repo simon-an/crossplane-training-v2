@@ -19,3 +19,9 @@ kubectl apply -f provider.yaml
 kubectl apply -f providerconfig.yaml 
 
 # create secret
+cat > secret.yaml <<-EOF
+[default]
+aws_access_key_id = access-key-id
+aws_secret_access_key = secret-access-key
+EOF
+kubectl create secret generic aws-secret --from-file creds=./secret.yaml -n crossplane-system
