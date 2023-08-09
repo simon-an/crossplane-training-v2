@@ -12,6 +12,9 @@ helm install crossplane crossplane-stable/crossplane --namespace crossplane-syst
 
 # aliases
 alias k='kubectl'
+alias kg='kubectl get'
+alias kd='kubectl describe'
+alias kgp='kubectl get pods'
 alias kn='kubectl config set-context --current --namespace'
 
 # deploy provider
