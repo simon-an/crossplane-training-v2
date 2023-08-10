@@ -1,0 +1,71 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: bucket-with-events-composition-1
+spec: 
+  compositeTypeRef:
+    apiVersion: bwe.example.org/v1alpha1
+    kind: XBucketEvents
+  resources:
+    - name: bucket # rename this will delete the old bucket and create a new one
+      base:
+        # same as in bucket.yamls
+        apiVersion: s3.aws.crossplane.io/v1beta1
+        kind: Bucket
+        metadata:
+          name: bwe-bucket # give it a unique name # rename this will NOT delete the old bucket and create a new one
+        spec:
+          deletionPolicy: Delete
+          forProvider:
+            objectOwnership: BucketOwnerEnforced
+            locationConstraint: eu-central-1
+          providerConfigRef:
+            name: default
+        # until here
+      patches:
+        # - fromFieldPath: metadata.name
+        - fromFieldPath: metadata.label['crossplane.io/claim-name']
+          toFieldPath: metadata.name
+        # - fromFieldPath: metadata.labels['name']
+        #   toFieldPath:  metadata.annotations['crossplane.io/external-name']
+    - name: sqs # rename this will delete the old bucket and create a new one 
+      base:
+        apiVersion: sqs.aws.crossplane.io/v1beta1
+        kind: Queue
+        metadata:
+          name: bwe-queue
+          labels:
+            stage: example
+        spec:
+          forProvider:
+            region: eu-central-1
+            delaySeconds: 4
+            policy: |
+              {
+                "Version": "2012-10-17",
+                "Id": "allow-s3",
+                "Statement": [
+                  {
+                    "Sid": "allow-s3",
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": "s3.amazonaws.com"
+                    },
+                    "Action": [
+                      "SQS:SendMessage"
+                    ],
+                    "Resource": "*",
+                    "Condition": {
+                      "ArnLike": {
+                        "aws:SourceArn": "arn:aws:s3:*:*:*"
+                      }
+                    }
+                  }
+                ]
+              }
+          providerConfigRef:
+            name: default
+      patches:
+        - fromFieldPath: metadata.label['crossplane.io/claim-name']
+          toFieldPath: metadata.name
+        

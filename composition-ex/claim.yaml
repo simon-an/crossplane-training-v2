@@ -1,0 +1,6 @@
+apiVersion: bwe.example.org/v1alpha1
+kind: BucketEvents
+metadata:
+  name: simon-at-crossplane-ex
+  namespace: user
+spec: {}
